@@ -1,0 +1,83 @@
+on:
+  workflow_call:
+    inputs:
+      jar_name:
+        required: true
+        type: string
+      with_ezSQL:
+        required: false
+        default: false
+        type: boolean
+      paths:
+        required: true
+        type: string
+    secrets:
+      conn_ip:
+        required: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      JAR: ${{ inputs.jar_name }}
+      PATHS: ${{ inputs.paths }}
+      IP: ${{ secrets.conn_ip }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: gradle
+
+      - name: Clone EzSQL
+        if: ${{ inputs.with_ezSQL }}
+        uses: actions/checkout@v2
+        with:
+          path: "./ezsql"
+          repository: "https://gitlab.com/Pauloo27/EzSQL.git"
+
+      - name: Build EzSQL Maven
+        if: ${{ inputs.with_ezSQL }}
+        run: |
+          cd ezsql
+          mvn clean install -Dmaven.test.skip=true
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: "8.1.1"
+
+      - name: Build with Gradle
+        run: gradle shadowJar
+
+      # - name: Add SHORT_SHA env property with commit short sha
+      #   run: echo "SHORT_SHA=`echo ${{ github.sha }} | cut -c1-8`" >> $GITHUB_ENV
+
+      # - name: Create github release
+      #   id: create_release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: ${{ env.SHORT_SHA }}
+      #     release_name: Release ${{ env.SHORT_SHA }}
+
+      # - name: Upload release asset
+      #   id: upload-release-asset
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: ./build/libs/${JAR}
+      #     asset_name: ${JAR}
+      #     asset_content_type: application/java-archive
+
+      - name: Copy file to Academy Machine
+        shell: bash
+        run: |
+          for path in $(echo $string | tr ", " " "); do 
+            echo './build/libs/${JAR}' ${IP}:~/academy/$path/plugins/update
+          done
