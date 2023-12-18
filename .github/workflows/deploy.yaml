@@ -26,6 +26,8 @@ jobs:
       PATHS: ${{ inputs.paths }}
       IP: ${{ secrets.conn_ip }}
       USER: ${{ secrets.conn_user }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_USERNAME: ${{ github.actor }}
     steps:
       - uses: actions/checkout@v2
 
