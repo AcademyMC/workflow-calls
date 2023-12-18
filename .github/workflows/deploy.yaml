@@ -18,6 +18,8 @@ on:
         required: true
       ssh_key:
         required: true
+      gh_token:
+        required: true
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -26,8 +28,7 @@ jobs:
       PATHS: ${{ inputs.paths }}
       IP: ${{ secrets.conn_ip }}
       USER: ${{ secrets.conn_user }}
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GH_USERNAME: ${{ github.actor }}
+      GH_TOKEN: ${{ secrets.gh_token }}
     steps:
       - uses: actions/checkout@v2
 
