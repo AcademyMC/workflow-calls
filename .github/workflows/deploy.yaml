@@ -19,7 +19,7 @@ on:
       ssh_key:
         required: true
       gh_token:
-        required: true
+        required: false
 jobs:
   deploy:
     runs-on: ubuntu-latest
