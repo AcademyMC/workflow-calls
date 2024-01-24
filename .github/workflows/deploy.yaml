@@ -26,8 +26,8 @@ jobs:
     env:
       JAR: ${{ inputs.jar_name }}
       PATHS: ${{ inputs.paths }}
+      STAGE: ${{ inputs.stage }}
       IP: ${{ secrets.conn_ip }}
-      STAGE: ${{ secrets.stage }}
       USER: ${{ secrets.conn_user }}
       GH_TOKEN: ${{ secrets.gh_token }}
     steps:
