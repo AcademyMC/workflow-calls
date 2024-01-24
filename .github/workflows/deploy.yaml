@@ -4,12 +4,12 @@ on:
       jar_name:
         required: true
         type: string
-      with_ezSQL:
-        required: false
-        default: false
-        type: boolean
       paths:
         required: true
+        type: string
+      stage:
+        required: false
+        default: development
         type: string
     secrets:
       conn_ip:
@@ -22,11 +22,12 @@ on:
         required: false
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     env:
       JAR: ${{ inputs.jar_name }}
       PATHS: ${{ inputs.paths }}
       IP: ${{ secrets.conn_ip }}
+      STAGE: ${{ secrets.stage }}
       USER: ${{ secrets.conn_user }}
       GH_TOKEN: ${{ secrets.gh_token }}
     steps:
@@ -59,5 +60,5 @@ jobs:
         shell: bash
         run: |
           for path in $(echo $PATHS | tr ", " " "); do 
-            scp build/libs/$JAR $USER@$IP:~/academy/$path/plugins/update/$JAR
+            scp build/libs/$JAR $USER@$IP:~/$STAGE/servers/$path/plugins/update/$JAR
           done
